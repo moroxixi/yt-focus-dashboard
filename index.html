@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Focus YouTube</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+    <header class="p-6 border-b border-gray-800 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-red-500">FocusTube</h1>
+        <div id="status" class="text-sm text-gray-400 text-right">Loading channels...</div>
+    </header>
+
+    <main class="p-6">
+        <div id="video-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
+    </main>
+
+    <script>
+        const SHEETDB_URL = 'https://sheetdb.io/api/v1/u9qfmxgp0c16e';
+        const YT_API_KEY = 'API_KEY_YOUTUBE_KAMU_DI_SINI';
+
+        async function init() {
+            try {
+                // 1. Ambil daftar channel dari SheetDB
+                const res = await fetch(SHEETDB_URL);
+                const channels = await res.json();
+                
+                document.getElementById('status').innerText = `${channels.length} Channels Loaded`;
+
+                // 2. Untuk setiap channel, ambil 1 video terbaru
+                for (const channel of channels) {
+                    fetchLatestVideo(channel.channel_id, channel.name);
+                }
+            } catch (err) {
+                console.error("Gagal mengambil data:", err);
+            }
+        }
+
+        async function fetchLatestVideo(channelId, channelName) {
+            const ytUrl = `https://www.googleapis.com/youtube/v3/search?key=${YT_API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=1&type=video`;
+            
+            try {
+                const res = await fetch(ytUrl);
+                const data = await res.json();
+                if (data.items && data.items.length > 0) {
+                    renderVideoCard(data.items[0], channelName);
+                }
+            } catch (err) {
+                console.error(`Gagal fetch video untuk ${channelName}:`, err);
+            }
+        }
+
+        function renderVideoCard(video, channelName) {
+            const grid = document.getElementById('video-grid');
+            const videoId = video.id.videoId;
+            const title = video.snippet.title;
+            const thumb = video.snippet.thumbnails.high.url;
+
+            const card = `
+                <div class="bg-gray-800 rounded-lg overflow-hidden hover:ring-2 hover:ring-red-500 transition">
+                    <a href="https://www.youtube.com/embed/${videoId}" target="player_frame" onclick="window.scrollTo(0,0)">
+                        <img src="${thumb}" class="w-full aspect-video object-cover" alt="${title}">
+                    </a>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-sm line-clamp-2 mb-2">${title}</h3>
+                        <p class="text-xs text-gray-400">${channelName}</p>
+                    </div>
+                </div>
+            `;
+            grid.innerHTML += card;
+        }
+
+        init();
+    </script>
+</body>
+</html>
