@@ -74,54 +74,78 @@
         
         <div id="video-content" class="max-w-6xl mx-auto p-6 md:p-12 pb-48 w-full">
             </div>
+
+			<button id="backToTop" onclick="scrollToTop()" 
+    class="fixed bottom-6 right-6 z-50 p-4 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-2xl transition-all opacity-0 translate-y-10 scale-0">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+    </svg>
+</button>
     </main>
 
-    <script>
-        const SHEETDB_URL = 'https://sheetdb.io/api/v1/u9qfmxgp0c16e';
+	<script>
+    const SHEETDB_URL = 'https://sheetdb.io/api/v1/u9qfmxgp0c16e';
 
-        // Fungsi Buka Tutup Sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
+    // 1. Fungsi Scroll ke Atas
+    function scrollToTop() {
+        document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Tampilkan tombol saat scroll ke bawah
+    document.querySelector('main').addEventListener('scroll', function() {
+        const btn = document.getElementById('backToTop');
+        if (this.scrollTop > 500) {
+            btn.classList.remove('opacity-0', 'translate-y-10', 'scale-0');
+            btn.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+        } else {
+            btn.classList.add('opacity-0', 'translate-y-10', 'scale-0');
+            btn.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+        }
+    });
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.style.display = sidebar.classList.contains('-translate-x-full') ? 'none' : 'block';
+    }
+
+    async function loadApp() {
+        try {
+            const response = await fetch(SHEETDB_URL);
+            const data = await response.json();
+            document.getElementById('loader').classList.add('hidden');
             
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.style.display = 'block';
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.style.display = 'none';
-            }
+            const grouped = data.reduce((acc, obj) => {
+                const key = obj.channel;
+                if (!acc[key]) acc[key] = { items: [], photo: obj.profile_photo_url };
+                acc[key].items.push(obj);
+                return acc;
+            }, {});
+
+            // 2. LOGIKA SORTING A-Z (Berdasarkan Nama Channel)
+            const sortedChannels = Object.keys(grouped).sort().reduce((acc, key) => {
+                acc[key] = grouped[key];
+                return acc;
+            }, {});
+
+            renderApp(sortedChannels);
+        } catch (error) {
+            console.error("Fetch error:", error);
         }
+    }
 
-        async function loadApp() {
-            try {
-                const response = await fetch(SHEETDB_URL);
-                const data = await response.json();
-                document.getElementById('loader').classList.add('hidden');
-                
-                const grouped = data.reduce((acc, obj) => {
-                    const key = obj.channel;
-                    if (!acc[key]) acc[key] = { items: [], photo: obj.profile_photo_url };
-                    acc[key].items.push(obj);
-                    return acc;
-                }, {});
-
-                renderApp(grouped);
-            } catch (error) {
-                console.error("Fetch error:", error);
-                document.getElementById('loader').innerText = "Gagal memuat database.";
-            }
-        }
-
-        function renderApp(groupedData) {
+    function renderApp(groupedData) {
         const sidebarNav = document.getElementById('sidebar-nav');
         const content = document.getElementById('video-content');
+        sidebarNav.innerHTML = '<p class="text-[10px] uppercase tracking-widest text-zinc-600 font-extrabold mb-5 px-3">Subscriber</p>';
+        content.innerHTML = '';
 
         for (const channelName in groupedData) {
             const safeId = channelName.replace(/\s+/g, '-').toLowerCase();
             const channelPhoto = groupedData[channelName].photo || 'https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png';
 
-            // 1. Sidebar Nav
+            // Sidebar Item
             sidebarNav.innerHTML += `
                 <a href="#${safeId}" onclick="if(window.innerWidth < 1024) toggleSidebar()" class="sidebar-link flex items-center gap-4 p-3 rounded-2xl transition-all text-sm font-medium text-zinc-300">
                     <img src="${channelPhoto}" class="channel-avatar w-10 h-10 border border-zinc-800" onerror="this.src='https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png'">
@@ -133,31 +157,21 @@
             groupedData[channelName].items.forEach(vid => {
                 let videoId = vid.url.includes('v=') ? vid.url.split('v=')[1].split('&')[0] : vid.url.split('be/')[1];
                 const embedUrl = `https://www.youtube.com/embed/${videoId}`;
-
-                // Logika untuk menampilkan Note jika ada isinya
                 const noteHtml = vid.notes ? `
-                    <div class="note-box mt-3 p-2 px-3 text-[11px] text-zinc-400 italic leading-relaxed">
+                    <div class="mt-3 p-2 px-3 text-[11px] text-zinc-400 italic leading-relaxed bg-white/5 border-l-2 border-zinc-700">
                         <span class="text-zinc-600 not-italic font-bold mr-1 uppercase text-[9px]">Note:</span> ${vid.notes}
                     </div>
                 ` : '';
 
                 videoListHtml += `
-                    <div class="video-item group border-b border-zinc-900 transition-all">
-                        <div class="flex flex-col p-4 md:p-6">
+                    <div class="video-item group border-b border-zinc-900 transition-all p-4 md:p-6">
+                        <div class="flex flex-col">
                             <a href="${embedUrl}" target="_blank" class="flex items-center justify-between gap-4">
                                 <div class="flex-1">
-                                    <h3 class="text-sm md:text-lg font-medium text-zinc-100 group-hover:text-red-500 transition-colors line-clamp-2">
-                                        ${vid.title}
-                                    </h3>
-                                    <div class="flex items-center gap-2 mt-2">
-                                        <span class="text-[8px] md:text-[9px] bg-zinc-800 text-zinc-500 px-3 py-1 rounded uppercase tracking-widest font-bold">
-                                            ${vid.category || 'Focus'}
-                                        </span>
-                                    </div>
+                                    <h3 class="text-sm md:text-lg font-medium text-zinc-100 group-hover:text-red-500 transition-colors">${vid.title}</h3>
+                                    <span class="text-[8px] md:text-[9px] bg-zinc-800 text-zinc-500 px-3 py-1 rounded uppercase tracking-widest mt-2 inline-block font-bold">${vid.category || 'Focus'}</span>
                                 </div>
-                                <span class="text-zinc-700 text-[9px] font-mono group-hover:text-red-500 whitespace-nowrap">
-                                    OPEN ⟶
-                                </span>
+                                <span class="text-zinc-700 text-[9px] font-mono group-hover:text-red-500 whitespace-nowrap uppercase tracking-widest">Open ⟶</span>
                             </a>
                             ${noteHtml}
                         </div>
@@ -171,7 +185,7 @@
                         <img src="${channelPhoto}" class="channel-avatar w-12 h-12 md:w-20 md:h-20 border-2 border-black shadow-xl" onerror="this.src='https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png'">
                         <div>
                             <h2 class="text-xl md:text-3xl font-extrabold text-white uppercase tracking-tighter">${channelName}</h2>
-                            <p class="text-zinc-500 text-[10px] md:text-sm">Personal Curation.</p>
+                            <p class="text-zinc-500 text-[10px] md:text-sm italic">Personal Curation</p>
                         </div>
                     </div>
                     <div class="bg-zinc-900/40 rounded-2xl md:rounded-3xl border border-zinc-900 shadow-xl overflow-hidden">
@@ -181,7 +195,9 @@
             `;
         }
     }
-        loadApp();
-    </script>
+
+    loadApp();
+</script>
+
 </body>
 </html>
