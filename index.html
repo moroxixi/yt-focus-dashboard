@@ -3,77 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Focus YouTube</title>
+    <title>Daftar Pekerjaan Sampingan - Guild Board</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white font-sans">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { 
+            background-color: #e5e1d8; 
+            font-family: 'Inter', sans-serif; 
+            background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png"); 
+            color: #5d2e0a;
+        }
+        .medieval-font { font-family: 'MedievalSharp', cursive; }
+        
+        /* Gaya Card Utama */
+        .parchment-card { 
+            background-color: #f2ede4; 
+            border: 1.5px solid #8b5a2b; 
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .parchment-card:hover { transform: translateY(-5px); }
 
-    <header class="p-6 border-b border-gray-800 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-red-500">FocusTube</h1>
-        <div id="status" class="text-sm text-gray-400 text-right">Loading channels...</div>
+        /* Tombol Medieval */
+        .btn-medieval {
+            background-color: #8b4513;
+            color: #f4f1ea;
+            border: 1px solid #5d2e0a;
+            transition: all 0.3s;
+        }
+        .btn-medieval:hover { background-color: #5d2e0a; color: white; }
+
+        /* FAQ Card */
+        .faq-card { 
+            background-color: #fdfbf7; 
+            border: 2px solid #78350f33; 
+            transition: all 0.3s ease; 
+        }
+        .faq-card:hover { border-color: #78350f; background-color: white; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <header class="text-center mb-16">
+        <h1 class="text-4xl md:text-5xl font-bold text-amber-900 medieval-font tracking-widest uppercase mb-4">📜 Daftar Pekerjaan Sampingan</h1>
+        <p class="text-amber-800 italic mb-8">"Selesaikan tugas, Hasilkan Uang dan Gabung Komunitas."</p>
+        
+        <div class="flex flex-col items-center gap-4">
+            <a href="https://forms.gle/buQ49P5f6o8ph2457" target="_blank" 
+               class="btn-medieval px-10 py-3 rounded-md font-bold shadow-lg medieval-font uppercase tracking-wider text-lg">
+                + Kirim Permintaan (Post Quest)
+            </a>
+            
+            <div class="flex gap-4 text-xs font-bold medieval-font uppercase tracking-tight text-[#8b5a2b]">
+                <a href="https://chat.whatsapp.com/KxlqWeFh6vCFSokGNTTN3t" target="_blank" class="hover:underline underline-offset-4">
+                    📢 Gabung Komunitas
+                </a>
+                <span class="opacity-30">|</span>
+                <a href="#alur-kerja" class="hover:underline underline-offset-4">
+                    💡 Panduan & Alur Kerja
+                </a>
+            </div>
+        </div> 
     </header>
 
-    <main class="p-6">
-        <div id="video-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <main class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-6 border-b-2 border-[#d4c4a8] pb-2">
+            <h2 class="text-2xl md:text-3xl font-bold medieval-font">Daftar Tugas Tersedia</h2>
+            <span id="quest-count" class="bg-amber-800 text-amber-50 px-3 py-1 rounded-full text-xs font-bold uppercase">Memuat...</span>
+        </div>
+
+        <div id="quest-board" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
             </div>
+
+ <section id="alur-kerja" class="mt-20 border-t-2 border-amber-900/10 pt-16 mb-20">
+    <h2 class="text-3xl font-bold text-amber-900 medieval-font text-center mb-10 uppercase tracking-widest">💡 Panduan & Alur Kerja</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <div class="faq-card p-5 rounded-sm">
+            <h3 class="font-bold text-amber-900 mb-2">01. Apa ini?</h3>
+			<p class="text-sm text-gray-700">Tempat mempertemukan antara pemberi tugas dan pelaksana. <strong>✦︎ Pemberi tugas </strong> adalah orang yang membutuhkan bantuan dimana siapa yang dapat membantu akan diberi Imbalan sesuai dengan yang tertulis. <strong>✦︎ Pelaksana</strong> adalah orang yang melaksanakan tugas dan diberi Imbalan sesuai yang tertulis oleh Pemberi tugas.</p>
+        </div>
+
+         <div class="faq-card p-5 rounded-sm">
+            <h3 class="font-bold text-amber-900 mb-2">02. Bagaimana mekanismenya?</h3>
+            <p class="text-sm text-gray-700"><strong>✦︎ Untuk kamu yang butuh bantuan,</strong> klik + Kirim Permintaan lalu Isi formulir kemudian ikuti prosedur. <strong>✦︎ Untuk kamu yang cari tambahan penghasilan,</strong> pilih tugas yang tersedia lalu klik Terima Tugas kemudian ikuti prosedur</p>
+		 </div>
+
+		<div class="faq-card p-5 rounded-sm">
+            <h3 class="font-bold text-amber-900 mb-2">03. Bisakah aku memberi tugas?</h3>
+            <p class="text-sm text-gray-700">Bisa banget, Klik <strong>+ Kirim Permintaan</strong>, isi formulir, dan tunggu pelaksana menghubungi melalui admin.</p>
+        </div>
+
+        <div class="faq-card p-5 rounded-sm">
+            <h3 class="font-bold text-amber-900 mb-2">04. Bagaimana cara menghasilkan uang disini?</h3>
+            <p class="text-sm text-gray-700">Pilih tugas yang tersedia, klik <strong>Terima Tugas</strong>, dan selesaikan pekerjaan sesuai pesanan.</p>
+        </div>
+
+        <div class="faq-card p-5 rounded-sm">
+            <h3 class="font-bold text-amber-900 mb-2">05. Biaya Admin</h3>
+            <p class="text-sm text-gray-700">Pemberi tugas membayar <strong>Rp 2.000,-</strong> ke admin sebagai biaya layanan.</p>
+        </div>
+
+        <div class="faq-card p-5 rounded-sm">
+            <h3 class="font-bold text-amber-900 mb-2">06. Pembayaran Imbalan/Upah</h3>
+            <p class="text-sm text-gray-700">Upah dibayar <strong>langsung</strong> dari pemberi tugas ke pelaksana. Admin tidak memotong gaji pelaksana.</p>
+        </div>
+
+        <div class="faq-card p-5 rounded-sm">
+            <h3 class="font-bold text-amber-900 mb-2">07. Keamanan</h3>
+            <p class="text-sm text-gray-700">Admin memverifikasi setiap tugas, namun pengerjaan adalah tanggung jawab masing-masing pihak.</p>
+        </div>
+
+
+		<div class="faq-card p-5 rounded-sm">
+			<h3 class="font-bold text-amber-900 mb-2">08. Kapan Tugas Baru Diupload?</h3>
+    		<p class="text-sm text-gray-700">
+        		Untuk mendapatkan info terkait tugas terbaru 
+        		<a href="https://chat.whatsapp.com/KxlqWeFh6vCFSokGNTTN3t" target="_blank" class="text-blue-600 hover:underline font-medium">klik disini</a> 
+        		untuk memasuki grup WhatsApp (Info Tugas Terbaru)
+    		</p>
+		</div>
+
+
+
+    </div>
+</section> 
     </main>
 
+    <footer class="text-center mt-20 pb-10 text-amber-900 opacity-60 text-sm">
+        <p>&copy;2026 Pekerjaan Sampingan • Instagram @rofi_m37</p>
+    </footer>
+
     <script>
-        const SHEETDB_URL = 'https://sheetdb.io/api/v1/u9qfmxgp0c16e';
-        const YT_API_KEY = 'AIzaSyBt9xZMgAsUL19OqUMyQvP6F0hpkOItZig';
-
-        async function init() {
+        const API_URL = 'https://sheetdb.io/api/v1/86549ixujsev7';
+        const ADMIN_WA = "6283156569954";
+		function formatParchmentTime(timestampStr) {
+            if (!timestampStr) return { date: '-', time: '-' };
             try {
-                // 1. Ambil daftar channel dari SheetDB
-                const res = await fetch(SHEETDB_URL);
-                const channels = await res.json();
+                const parts = timestampStr.split(' ');
+                return { date: parts[0], time: parts[1].substring(0,5) };
+            } catch (e) { return { date: '-', time: '-' }; }
+        }
+        async function loadQuests() {
+            const board = document.getElementById('quest-board');
+            const countLabel = document.getElementById('quest-count');
+
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
                 
-                document.getElementById('status').innerText = `${channels.length} Channels Loaded`;
+                // 1. Filter baris kosong
+                const filtered = data.filter(q => q['Judul Tugas'] && q['Judul Tugas'].trim() !== "");
 
-                // 2. Untuk setiap channel, ambil 1 video terbaru
-                for (const channel of channels) {
-                    fetchLatestVideo(channel.channel_id, channel.name);
-                }
-            } catch (err) {
-                console.error("Gagal mengambil data:", err);
+                // 2. Pisahkan Urgent dan Santai (Cek Kolom I: Status Tugas)
+                const urgentQuests = filtered.filter(q => 
+                    q['Status Tugas'] === 'Mendesak/Urgent (Tugas perlu diselesaikan segera)' 
+                );
+                const casualQuests = filtered.filter(q => 
+                    q['Status Tugas'] !== 'Mendesak/Urgent (Tugas perlu diselesaikan segera)' 
+                );
+
+                // 3. Gabungkan: Urgent di atas (Terbaru), baru Santai
+                const sortedQuests = [...urgentQuests.reverse(), ...casualQuests.reverse()];
+                
+                board.innerHTML = '';
+                countLabel.innerText = `${filtered.length} Tugas Tersedia`;
+
+                sortedQuests.forEach(q => {
+					const timeInfo = formatParchmentTime(q.Timestamp);
+                    // Cek status urgent untuk styling
+                    const isUrgent = q['Status Tugas'] === 'Mendesak/Urgent (Tugas perlu diselesaikan segera)' 
+                    
+                    const card = `
+                        <div class="parchment-card p-6 rounded-sm flex flex-col h-full relative overflow-hidden 
+                            ${isUrgent ? 'border-[3px] border-red-600 shadow-xl' : ''}">
+                            
+                            ${isUrgent ? '<div class="absolute top-0 right-0 bg-red-600 text-white text-[10px] px-3 py-1 font-bold uppercase tracking-tighter">🔥 URGENT</div>' : ''}
+
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="bg-[#f3e5ab] text-[10px] font-bold px-2 py-0.5 border border-[#d4c4a8] uppercase">
+                                    ${q.Kategori || 'Umum'}
+                                </span>
+                                <span class="${isUrgent ? 'text-red-700' : 'text-[#2d5a27]'} font-bold medieval-font text-xl">
+                                    Rp. ${q['Imbalan/Upah'] || '-'}
+                                </span>
+                            </div>
+                            
+                            <h2 class="text-xl font-bold mb-1 medieval-font leading-tight ${isUrgent ? 'text-red-900' : ''}">${q['Judul Tugas']}</h2>
+                            
+                            <p class="text-[11px] font-bold text-[#8b4513] mb-2">👤 Oleh: ${q['Nama Pemberi Tugas'] || 'noname'}</p>
+                            
+                            <p class="text-sm italic mb-6 flex-grow opacity-80 border-l-2 ${isUrgent ? 'border-red-200' : 'border-[#d4c4a8]'} pl-3">
+                                "${q['Deskripsi Tugas'] || 'Hubungi Admin untuk info detail...'}"
+                            </p>
+                            
+                            <div class="border-t ${isUrgent ? 'border-red-200' : 'border-[#d4c4a8]'} pt-4 space-y-2 text-xs font-bold">
+                                <div class="flex items-center">📍 <span class="ml-1 italic text-[#8b4513]">Tujuan: ${q.Tujuan}</span></div>
+                                <div class="flex items-center opacity-60">📅 <span class="ml-1 tracking-tighter">Upload: ${timeInfo.date} | 🕒 Jam:  ${timeInfo.time} WIB</span></div>
+                                
+                                <button onclick="contactAdmin('${q['Judul Tugas']}')" 
+                                    class="w-full ${isUrgent ? 'bg-red-700 hover:bg-black text-white' : 'btn-medieval'} py-2.5 rounded-sm font-bold uppercase mt-2 tracking-widest transition-colors">
+                                    Terima Tugas
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    board.innerHTML += card;
+                });
+                
+            } catch (error) {
+                board.innerHTML = `<p class="col-span-full text-center text-red-600">Gagal memuat gulungan tugas.</p>`;
             }
         }
 
-        async function fetchLatestVideo(channelId, channelName) {
-            const ytUrl = `https://www.googleapis.com/youtube/v3/search?key=${YT_API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=1&type=video`;
-            
-            try {
-                const res = await fetch(ytUrl);
-                const data = await res.json();
-                if (data.items && data.items.length > 0) {
-                    renderVideoCard(data.items[0], channelName);
-                }
-            } catch (err) {
-                console.error(`Gagal fetch video untuk ${channelName}:`, err);
+        function contactAdmin(title) {
+            const msg = encodeURIComponent(`Halo Admin, saya berminat pada tugas: "${title}". Mohon arahannya.`);
+            if(confirm("Hubungi Admin via WhatsApp?")) {
+                window.open(`https://wa.me/${ADMIN_WA}?text=${msg}`, '_blank');
             }
         }
 
-        function renderVideoCard(video, channelName) {
-            const grid = document.getElementById('video-grid');
-            const videoId = video.id.videoId;
-            const title = video.snippet.title;
-            const thumb = video.snippet.thumbnails.high.url;
-
-            const card = `
-                <div class="bg-gray-800 rounded-lg overflow-hidden hover:ring-2 hover:ring-red-500 transition">
-                    <a href="https://www.youtube.com/embed/${videoId}" target="player_frame" onclick="window.scrollTo(0,0)">
-                        <img src="${thumb}" class="w-full aspect-video object-cover" alt="${title}">
-                    </a>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-sm line-clamp-2 mb-2">${title}</h3>
-                        <p class="text-xs text-gray-400">${channelName}</p>
-                    </div>
-                </div>
-            `;
-            grid.innerHTML += card;
-        }
-
-        init();
+        document.addEventListener('DOMContentLoaded', loadQuests);
     </script>
 </body>
 </html>
