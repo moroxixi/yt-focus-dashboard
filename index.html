@@ -12,48 +12,95 @@
         html { scroll-behavior: smooth; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* CSS Tambahan untuk Memastikan Gambar Asli Rapi */
         .channel-avatar {
-            object-fit: cover; /* Memastikan gambar memenuhi lingkaran tanpa gepeng */
-            border-radius: 9999px; /* Membuat lingkaran sempurna */
-            aspect-ratio: 1/1; /* Memastikan proporsi gambar tetap kotak sebelum dipotong lingkaran */
+            object-fit: cover;
+            border-radius: 9999px;
+            aspect-ratio: 1/1;
+        }
+
+		.note-box {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-left: 2px solid #3f3f46; /* Warna zinc-700 */
+    	}
+
+        /* Transisi Sidebar */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* Overlay saat sidebar terbuka di mobile */
+        #overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 40;
         }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden font-sans antialiased">
 
-    <aside class="w-68 border-r border-zinc-800 flex flex-col bg-black shadow-2xl">
-        <div class="p-8 border-b border-zinc-800">
-            <h1 class="text-2xl font-black text-red-600 tracking-tighter italic uppercase">YT <span class="text-white">Focus</span></h1>
-            <p class="text-[9px] text-zinc-600 mt-1">List Video Favorite</p>
+    <div id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 border-r border-zinc-800 flex flex-col bg-black shadow-2xl transform -translate-x-full lg:translate-x-0 lg:relative">
+        <div class="p-6 border-b border-zinc-800 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black text-red-600 tracking-tighter italic uppercase text-center lg:text-left">YT <span class="text-white">Focus</span></h1>
+                <p class="text-[9px] text-zinc-600 mt-1">List Video Favorite</p>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden text-zinc-400">
+                ✕
+            </button>
         </div>
         <nav id="sidebar-nav" class="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
             <p class="text-[10px] uppercase tracking-widest text-zinc-600 font-extrabold mb-5 px-3">Subscriber</p>
-            </nav>
+        </nav>
     </aside>
 
-    <main class="flex-1 overflow-y-auto bg-zinc-950">
+    <main class="flex-1 overflow-y-auto bg-zinc-950 flex flex-col">
+        
+        <header class="p-4 border-b border-zinc-900 bg-black flex items-center gap-4 sticky top-0 z-30">
+            <button onclick="toggleSidebar()" class="p-2 hover:bg-zinc-800 rounded-lg transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <h1 class="text-sm font-bold text-zinc-400 lg:hidden uppercase tracking-widest">Navigation</h1>
+        </header>
+
         <div id="loader" class="p-16 text-zinc-600 italic animate-pulse text-center mt-32 text-sm">
             Synchronizing data with your playlist...
         </div>
         
-        <div id="video-content" class="max-w-6xl mx-auto p-12 pb-48">
+        <div id="video-content" class="max-w-6xl mx-auto p-6 md:p-12 pb-48 w-full">
             </div>
     </main>
 
     <script>
         const SHEETDB_URL = 'https://sheetdb.io/api/v1/u9qfmxgp0c16e';
 
+        // Fungsi Buka Tutup Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.style.display = 'block';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.style.display = 'none';
+            }
+        }
+
         async function loadApp() {
             try {
                 const response = await fetch(SHEETDB_URL);
                 const data = await response.json();
-                
                 document.getElementById('loader').classList.add('hidden');
                 
                 const grouped = data.reduce((acc, obj) => {
                     const key = obj.channel;
-                    // Kita ambil URL gambar dari kolom 'profile_photo_url' yang kamu isi di Sheets
                     if (!acc[key]) acc[key] = { items: [], photo: obj.profile_photo_url };
                     acc[key].items.push(obj);
                     return acc;
@@ -62,71 +109,78 @@
                 renderApp(grouped);
             } catch (error) {
                 console.error("Fetch error:", error);
-                document.getElementById('loader').innerText = "Gagal memuat database. Periksa API URL atau koneksi internet.";
+                document.getElementById('loader').innerText = "Gagal memuat database.";
             }
         }
 
         function renderApp(groupedData) {
-            const sidebar = document.getElementById('sidebar-nav');
-            const content = document.getElementById('video-content');
+        const sidebarNav = document.getElementById('sidebar-nav');
+        const content = document.getElementById('video-content');
 
-            for (const channelName in groupedData) {
-                const safeId = channelName.replace(/\s+/g, '-').toLowerCase();
-                
-                // INI PERUBAHAN UTAMANYA: Mengambil URL Gambar Asli dari Google Sheets
-                const channelPhoto = groupedData[channelName].photo || 'https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png';
+        for (const channelName in groupedData) {
+            const safeId = channelName.replace(/\s+/g, '-').toLowerCase();
+            const channelPhoto = groupedData[channelName].photo || 'https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png';
 
-                // 1. Sidebar Item dengan Gambar Asli
-                sidebar.innerHTML += `
-                    <a href="#${safeId}" class="sidebar-link flex items-center gap-4 p-3 rounded-2xl transition-all text-sm font-medium text-zinc-300">
-                        <img src="${channelPhoto}" class="channel-avatar w-10 h-10 border border-zinc-800" alt="${channelName}" onerror="this.src='https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png'">
-                        <span class="truncate">${channelName}</span>
-                    </a>
-                `;
+            // 1. Sidebar Nav
+            sidebarNav.innerHTML += `
+                <a href="#${safeId}" onclick="if(window.innerWidth < 1024) toggleSidebar()" class="sidebar-link flex items-center gap-4 p-3 rounded-2xl transition-all text-sm font-medium text-zinc-300">
+                    <img src="${channelPhoto}" class="channel-avatar w-10 h-10 border border-zinc-800" onerror="this.src='https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png'">
+                    <span class="truncate">${channelName}</span>
+                </a>
+            `;
 
-                // 2. Video List HTML
-                let videoListHtml = '';
-                groupedData[channelName].items.forEach(vid => {
-                    let videoId = vid.url.includes('v=') ? vid.url.split('v=')[1].split('&')[0] : vid.url.split('be/')[1];
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            let videoListHtml = '';
+            groupedData[channelName].items.forEach(vid => {
+                let videoId = vid.url.includes('v=') ? vid.url.split('v=')[1].split('&')[0] : vid.url.split('be/')[1];
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
 
-                    videoListHtml += `
-                        <div class="video-item group p-6 border-b border-zinc-900 transition-all">
-                            <a href="${embedUrl}" target="_blank" class="flex items-center justify-between gap-6">
+                // Logika untuk menampilkan Note jika ada isinya
+                const noteHtml = vid.notes ? `
+                    <div class="note-box mt-3 p-2 px-3 text-[11px] text-zinc-400 italic leading-relaxed">
+                        <span class="text-zinc-600 not-italic font-bold mr-1 uppercase text-[9px]">Note:</span> ${vid.notes}
+                    </div>
+                ` : '';
+
+                videoListHtml += `
+                    <div class="video-item group border-b border-zinc-900 transition-all">
+                        <div class="flex flex-col p-4 md:p-6">
+                            <a href="${embedUrl}" target="_blank" class="flex items-center justify-between gap-4">
                                 <div class="flex-1">
-                                    <h3 class="text-lg font-medium text-zinc-100 group-hover:text-red-500 transition-colors line-clamp-2">
+                                    <h3 class="text-sm md:text-lg font-medium text-zinc-100 group-hover:text-red-500 transition-colors line-clamp-2">
                                         ${vid.title}
                                     </h3>
-                                    <span class="text-[9px] bg-zinc-800 text-zinc-500 px-3 py-1 rounded uppercase tracking-widest mt-3 inline-block">
-                                        ${vid.category || 'Empty'}
-                                    </span>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="text-[8px] md:text-[9px] bg-zinc-800 text-zinc-500 px-3 py-1 rounded uppercase tracking-widest font-bold">
+                                            ${vid.category || 'Focus'}
+                                        </span>
+                                    </div>
                                 </div>
-                                <span class="text-zinc-700 text-[10px] font-mono group-hover:text-red-500 hover:font-bold tracking-widest uppercase transition-all whitespace-nowrap">
-                                    OPEN VIDEO ⟶
+                                <span class="text-zinc-700 text-[9px] font-mono group-hover:text-red-500 whitespace-nowrap">
+                                    OPEN ⟶
                                 </span>
                             </a>
+                            ${noteHtml}
                         </div>
-                    `;
-                });
-
-                // 3. Channel Header Section dengan Gambar Asli Lebih Besar
-                content.innerHTML += `
-                    <section id="${safeId}" class="mb-28 scroll-mt-10">
-                        <div class="flex items-center gap-6 mb-10 pb-6 border-b border-zinc-900">
-                            <img src="${channelPhoto}" class="channel-avatar w-24 h-24 border-4 border-black shadow-2xl" alt="${channelName}" onerror="this.src='https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png'">
-                            <div>
-                                <h2 class="text-4xl font-extrabold text-white uppercase tracking-tighter">${channelName}</h2>
-                                <p class="text-zinc-500 text-sm mt-1">Favorite Content.</p>
-                            </div>
-                        </div>
-                        <div class="bg-zinc-900/40 rounded-3xl border border-zinc-900 shadow-xl overflow-hidden">
-                            ${videoListHtml}
-                        </div>
-                    </section>
+                    </div>
                 `;
-            }
-        }
+            });
 
+            content.innerHTML += `
+                <section id="${safeId}" class="mb-16 md:mb-28 scroll-mt-24">
+                    <div class="flex items-center gap-4 md:gap-6 mb-6 md:mb-10 pb-4 border-b border-zinc-900">
+                        <img src="${channelPhoto}" class="channel-avatar w-12 h-12 md:w-20 md:h-20 border-2 border-black shadow-xl" onerror="this.src='https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png'">
+                        <div>
+                            <h2 class="text-xl md:text-3xl font-extrabold text-white uppercase tracking-tighter">${channelName}</h2>
+                            <p class="text-zinc-500 text-[10px] md:text-sm">Personal Curation.</p>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-900/40 rounded-2xl md:rounded-3xl border border-zinc-900 shadow-xl overflow-hidden">
+                        ${videoListHtml}
+                    </div>
+                </section>
+            `;
+        }
+    }
         loadApp();
     </script>
 </body>
