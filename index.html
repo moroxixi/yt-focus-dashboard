@@ -114,9 +114,16 @@
         try {
             const response = await fetch(SHEETDB_URL);
             const data = await response.json();
-            document.getElementById('loader').classList.add('hidden');
+
+			const dataReal = data.filter(obj => 
+            obj.title && obj.title.trim() !== "" &&
+            obj.channel && obj.channel.trim() !== "" &&
+            obj.url && obj.url.trim() !== ""
+        );
             
-            const grouped = data.reduce((acc, obj) => {
+            document.getElementById('loader').classList.add('hidden');
+
+            const grouped = dataReal.reduce((acc, obj) => {
                 const key = obj.channel;
                 if (!acc[key]) acc[key] = { items: [], photo: obj.profile_photo_url };
                 acc[key].items.push(obj);
