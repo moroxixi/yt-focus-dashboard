@@ -3,9 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
     <title>YT Focus Visual Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+		main {
+    	-webkit-overflow-scrolling: touch;
+		scroll-behavior: smooth;
+		}
+
         body { background-color: #0d0d0d; color: #e5e5e5; }
         .sidebar-link:hover { background-color: #1a1a1a; color: #ef4444; }
         .video-item:hover { background-color: #1a1a1a; }
@@ -36,6 +44,11 @@
             background: rgba(0,0,0,0.7);
             z-index: 40;
         }
+		#backToTop {
+    	z-index: 9999;
+    	cursor: pointer;
+    	-webkit-tap-highlight-color: transparent; /* Menghapus kotak biru saat diklik di iOS */
+}
     </style>
 </head>
 <body class="flex h-screen overflow-hidden font-sans antialiased">
@@ -86,10 +99,34 @@
 	<script>
     const SHEETDB_URL = 'https://sheetdb.io/api/v1/u9qfmxgp0c16e';
 
-    // 1. Fungsi Scroll ke Atas
-    function scrollToTop() {
-        document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // 1. Fungsi Scroll ke Atas yang lebih kompatibel
+	function scrollToTop() {
+	    const container = document.querySelector('main');
+	    container.scrollTo({
+	        top: 0,
+	        behavior: 'smooth'
+	    });
+	}
+	
+	// 2. Listener Scroll dengan deteksi yang lebih luas
+	const mainContainer = document.querySelector('main');
+	const btn = document.getElementById('backToTop');
+	
+	mainContainer.addEventListener('scroll', function() {
+	    // iOS terkadang butuh pengecekan yang lebih sensitif
+	    const scrollPos = mainContainer.scrollTop;
+	    
+	    if (scrollPos > 300) {
+	        // Gunakan Tailwind classes atau manipulasi style langsung
+	        btn.style.opacity = "1";
+	        btn.style.transform = "translateY(0) scale(1)";
+	        btn.style.pointerEvents = "auto";
+	    } else {
+	        btn.style.opacity = "0";
+	        btn.style.transform = "translateY(20px) scale(0)";
+	        btn.style.pointerEvents = "none";
+	    }
+	}, { passive: true }); // Menambah performa scroll di iOS
 
     // Tampilkan tombol saat scroll ke bawah
     document.querySelector('main').addEventListener('scroll', function() {
@@ -144,16 +181,21 @@
 
     function renderApp(groupedData) {
         const sidebarNav = document.getElementById('sidebar-nav');
-        const content = document.getElementById('video-content');
+        const content = document.getElementById('video-content');	
+		// Tambahkan parameter unik di belakang URL gambar agar browser menganggapnya file baru
+
         sidebarNav.innerHTML = '<p class="text-[10px] uppercase tracking-widest text-zinc-600 font-extrabold mb-5 px-3">Subscriber</p>';
         content.innerHTML = '';
 
         for (const channelName in groupedData) {
+			const cacheBuster = "?t=" + new Date().getTime(); 
+			const channelPhoto = (groupedData[channelName].photo || 'https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png') + cacheBuster;
             const safeId = channelName.replace(/\s+/g, '-').toLowerCase();
-            const channelPhoto = groupedData[channelName].photo || 'https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png';
+
 
             // Sidebar Item
             sidebarNav.innerHTML += `
+
                 <a href="#${safeId}" onclick="if(window.innerWidth < 1024) toggleSidebar()" class="sidebar-link flex items-center gap-4 p-3 rounded-2xl transition-all text-sm font-medium text-zinc-300">
                     <img src="${channelPhoto}" class="channel-avatar w-10 h-10 border border-zinc-800" onerror="this.src='https://www.gstatic.com/youtube/img/branding/youtubelogo_resizer_clr_96x68.png'">
                     <span class="truncate">${channelName}</span>
@@ -176,7 +218,7 @@
                             <a href="${embedUrl}" target="_blank" class="flex items-center justify-between gap-4">
                                 <div class="flex-1">
                                     <h3 class="text-sm md:text-lg font-medium text-zinc-100 group-hover:text-red-500 transition-colors">${vid.title}</h3>
-                                    <span class="text-[8px] md:text-[9px] bg-zinc-800 text-zinc-500 px-3 py-1 rounded uppercase tracking-widest mt-2 inline-block font-bold">${vid.category || 'Focus'}</span>
+                                    <span class="text-[8px] md:text-[9px] bg-zinc-800 text-zinc-500 px-3 py-1 rounded uppercase tracking-widest mt-2 inline-block font-bold">${vid.category || 'Empty'}</span>
                                 </div>
                                 <span class="text-zinc-700 text-[9px] font-mono group-hover:text-red-500 whitespace-nowrap uppercase tracking-widest">Open ⟶</span>
                             </a>
